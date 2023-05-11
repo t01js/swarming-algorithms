@@ -1,4 +1,3 @@
-
 import pygame
 import random
 import math
@@ -6,12 +5,12 @@ import numpy as np
 
 # Parameters
 width, height = 1400, 800
-num_boids = 20
-min_distance = 50
-max_speed = 3
-alignment_weight = 0.5
+num_boids = 50
+min_distance = 10
+max_speed = 5
+alignment_weight = 0.4
 cohesion_weight = 0.3
-separation_weight = 0.2
+separation_weight = 0.3
 avoid_edges_weight = 0.5
 edge_margin = 30
 arrow_size = 5
@@ -102,16 +101,24 @@ def main():
     clock = pygame.time.Clock()
 
     boids = [Boid(random.randint(0, width), random.randint(0, height)) for _ in range(num_boids)]
+    target_point = None  # Nuevo: punto hacia el que deben ir los boids
 
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            # Nuevo: detectar si se ha hecho clic en algún punto
+            elif event.type == pygame.MOUSEBUTTONUP:
+                target_point = np.array(pygame.mouse.get_pos())
 
         screen.fill((255, 255, 255))
 
         for boid in boids:
+            # Nuevo: actualizar el boid para que vaya hacia el punto objetivo
+            if target_point is not None:
+                boid.velocity += (target_point - boid.position) / 100
+                boid.velocity = boid.limit_speed(boid.velocity)
             boid.update(boids)
             boid.draw(screen)
 
